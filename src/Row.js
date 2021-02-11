@@ -9,6 +9,7 @@ const base_url = "https://image.tmdb.org/t/p/original/"
 function Row({ title, fetchUrl, isLargeRow}) {
   const [movies, setMovies] = useState([])
   const [trailerUrl, setTrailerUrl] = useState("")
+  const [trailerNotFound, setTrailerNotFound] = useState(false)
 
   useEffect(() => {
 
@@ -31,17 +32,23 @@ function Row({ title, fetchUrl, isLargeRow}) {
   }
 
   const handleClick = (movie) => {
+    setTrailerNotFound(false)
     if (trailerUrl) {
       setTrailerUrl("")
     } else {
       movieTrailer(movie?.name || movie?.title || "")
       .then((url) => {
-      console.log("URL HERE ", movie)
+      console.log("URL HERE: ", url)
+      console.log("TRAILER URL: ", trailerUrl)
       const urlParams = new URLSearchParams(new URL(url).search)
-      setTrailerUrl(urlParams.get('v')) 
-      }).catch(error => console.log(error))
+      console.log("URL SET AS TRAILERURL: ", urlParams)
+      setTrailerUrl(urlParams.get('v'))
+      })
+      .catch(error => {
+        setTrailerNotFound(true)
+        console.log(error)
+      })
     }
-
   }
 
   return (
@@ -58,6 +65,8 @@ function Row({ title, fetchUrl, isLargeRow}) {
         ))}
       </div>
       {trailerUrl && <Youtube videoId={trailerUrl} opts={opts} />}
+      {console.log("TRAILER URL: ", trailerUrl)}
+      {trailerNotFound && <div style={{marginLeft: '45vw'}}>TRAILER NOT FOUND</div>}
     </div>
   )
 }
